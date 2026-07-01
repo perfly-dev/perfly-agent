@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "perfly": {
+      "type": "http",
+      "url": "https://api.perfly.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer $PERFLY_INGESTION_TOKEN"
+      }
+    }
+  }
+}

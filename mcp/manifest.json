@@ -1,0 +1,20 @@
+{
+  "name": "perfly-agent-sync-mcp",
+  "displayName": "Perfly Agent Sync MCP",
+  "description": "Hosted MCP endpoint for sending selected coding-agent work summaries into Perfly.",
+  "version": "0.1.0",
+  "homepage": "https://perfly.dev",
+  "endpoint": "https://api.perfly.dev/mcp",
+  "transport": "streamable-http",
+  "auth": {
+    "type": "bearer",
+    "header": "Authorization",
+    "tokenPrefix": "pfl_ing_"
+  },
+  "tools": [
+    "perfly_check_connection",
+    "perfly_get_ingestion_policy",
+    "perfly_preview_work_items",
+    "perfly_add_work_items"
+  ]
+}
