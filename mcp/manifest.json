@@ -6,6 +6,11 @@
   "homepage": "https://perfly.dev",
   "endpoint": "https://api.perfly.dev/mcp",
   "transport": "streamable-http",
+  "clients": [
+    "claude-code",
+    "codex",
+    "cursor"
+  ],
   "auth": {
     "type": "bearer",
     "header": "Authorization",

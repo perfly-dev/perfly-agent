@@ -40,13 +40,30 @@ Local development:
 claude mcp add --transport http perfly-local http://localhost:8001/mcp --header "Authorization: Bearer $PERFLY_INGESTION_TOKEN"
 ```
 
-## Generic MCP Config
+## Codex
+
+Add this to `~/.codex/config.toml` or a trusted project's `.codex/config.toml`:
+
+```toml
+[mcp_servers.perfly]
+url = "https://api.perfly.dev/mcp"
+bearer_token_env_var = "PERFLY_INGESTION_TOKEN"
+```
+
+Codex reads the bearer token from the local environment variable:
+
+```bash
+export PERFLY_INGESTION_TOKEN="pfl_ing_xxx"
+```
+
+## Cursor
+
+Add this to `~/.cursor/mcp.json` or a project `.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "perfly": {
-      "type": "http",
       "url": "https://api.perfly.dev/mcp",
       "headers": {
         "Authorization": "Bearer $PERFLY_INGESTION_TOKEN"
@@ -55,6 +72,56 @@ claude mcp add --transport http perfly-local http://localhost:8001/mcp --header 
   }
 }
 ```
+
+Some Cursor-compatible MCP clients prefer an explicit transport field:
+
+```json
+{
+  "mcpServers": {
+    "perfly": {
+      "type": "streamable-http",
+      "url": "https://api.perfly.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer $PERFLY_INGESTION_TOKEN"
+      }
+    }
+  }
+}
+```
+
+## Generic MCP Config
+
+```json
+{
+  "mcpServers": {
+    "perfly": {
+      "type": "streamable-http",
+      "url": "https://api.perfly.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer $PERFLY_INGESTION_TOKEN"
+      }
+    }
+  }
+}
+```
+
+## Smithery
+
+Smithery can publish URL-based MCP servers that use Streamable HTTP. Perfly's endpoint is already hosted:
+
+```bash
+smithery mcp publish "https://api.perfly.dev/mcp" -n perfly-dev/perfly-agent
+```
+
+Perfly currently authenticates with a bearer ingestion token. If Smithery requires a user-facing config schema, publish with a schema that collects the full authorization header value and forwards it to upstream `Authorization`:
+
+```bash
+smithery mcp publish "https://api.perfly.dev/mcp" \
+  -n perfly-dev/perfly-agent \
+  --config-schema "$(cat examples/smithery-config-schema.json)"
+```
+
+See `examples/smithery.md` for notes on header mapping.
 
 ## Tools
 

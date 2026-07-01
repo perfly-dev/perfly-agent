@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "perflyAuthorization": {
+      "type": "string",
+      "title": "Perfly Authorization header",
+      "description": "Use the full value: Bearer pfl_ing_xxx",
+      "x-from": {
+        "header": "x-perfly-authorization"
+      },
+      "x-to": {
+        "header": "Authorization"
+      }
+    }
+  },
+  "required": [
+    "perflyAuthorization"
+  ]
+}

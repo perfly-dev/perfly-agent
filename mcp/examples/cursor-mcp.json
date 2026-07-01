@@ -1,7 +1,6 @@
 {
   "mcpServers": {
     "perfly": {
-      "type": "streamable-http",
       "url": "https://api.perfly.dev/mcp",
       "headers": {
         "Authorization": "Bearer $PERFLY_INGESTION_TOKEN"
