@@ -34,12 +34,6 @@ Production:
 claude mcp add --transport http perfly https://api.perfly.dev/mcp --header "Authorization: Bearer $PERFLY_INGESTION_TOKEN"
 ```
 
-Local development:
-
-```bash
-claude mcp add --transport http perfly-local http://localhost:8001/mcp --header "Authorization: Bearer $PERFLY_INGESTION_TOKEN"
-```
-
 ## Codex
 
 Add this to `~/.codex/config.toml` or a trusted project's `.codex/config.toml`:
@@ -138,3 +132,11 @@ See `examples/smithery.md` for notes on header mapping.
 - Ask for user confirmation before `perfly_add_work_items` unless unattended submission was explicitly enabled.
 - Send concise summary metadata only.
 - Never submit source code, diffs, logs, secrets, customer data, document bodies, issue bodies, pull request bodies, attachments, or full terminal output.
+
+## Internal Development
+
+Localhost setup is only for Perfly development while the API Worker is running locally:
+
+```bash
+claude mcp add --transport http perfly-local http://localhost:8001/mcp --header "Authorization: Bearer $PERFLY_INGESTION_TOKEN"
+```
