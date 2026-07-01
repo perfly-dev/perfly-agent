@@ -45,6 +45,18 @@ Override it when needed:
 PERFLY_AGENT_REMOTE_URL=https://github.com/perfly-dev/perfly-agent.git pnpm publish:perfly-agent
 ```
 
+If GitHub reports permission denied for an unexpected account, check the active SSH identity:
+
+```bash
+ssh -T git@github.com
+```
+
+Git commit author (`git config user.email`) does not control push permissions. SSH remotes use the GitHub account attached to the SSH key selected by your local SSH agent/config. To publish with HTTPS instead of SSH, run:
+
+```bash
+PERFLY_AGENT_REMOTE_URL=https://github.com/perfly-dev/perfly-agent.git pnpm publish:perfly-agent
+```
+
 ## Hub Entries
 
 Use one public repository with separate hub entrypoints:
