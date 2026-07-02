@@ -18,6 +18,8 @@ http://localhost:8001/mcp
 
 ## Authentication
 
+### Static Bearer Token
+
 Create a Perfly Agent Sync token in the Perfly app at `/agent-setup`, then pass it as an HTTP authorization header:
 
 ```text
@@ -25,6 +27,19 @@ Authorization: Bearer $PERFLY_INGESTION_TOKEN
 ```
 
 Tokens start with `pfl_ing_`, are shown once, and are write-only. They cannot read Perfly data.
+
+### OAuth Discovery
+
+Perfly's hosted MCP endpoint also supports the MCP OAuth authorization flow for GUI clients and registries that discover auth from the server:
+
+- Protected resource metadata: `https://api.perfly.dev/.well-known/oauth-protected-resource/mcp`
+- Authorization server metadata: `https://api.perfly.dev/.well-known/oauth-authorization-server`
+- Authorization endpoint: `https://api.perfly.dev/oauth/authorize`
+- Token endpoint: `https://api.perfly.dev/oauth/token`
+- Registration endpoint: `https://api.perfly.dev/oauth/register`
+- Revocation endpoint: `https://api.perfly.dev/oauth/revoke`
+
+The OAuth flow uses Authorization Code + PKCE, public clients, resource-bound opaque access tokens, and rotating refresh tokens. Static bearer tokens remain the recommended setup for headless CLI, devcontainer, SSH, and CI workflows.
 
 ## Claude Code
 
