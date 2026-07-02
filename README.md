@@ -94,6 +94,13 @@ The current ClawHub listing is:
 https://clawhub.ai/levi840714/skills/perfly-skill
 ```
 
+The current Smithery listings are:
+
+```text
+https://smithery.ai/servers/perfly/perfly-mcp
+https://smithery.ai/skills/perfly/perfly-skill
+```
+
 ## Project Links
 
 - Perfly: [https://perfly.dev](https://perfly.dev)

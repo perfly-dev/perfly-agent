@@ -31,10 +31,11 @@ The skill instructs agents to submit concise work summary metadata only. It expl
 
 ## ClawHub
 
-Published package:
+Published packages:
 
 ```text
 https://clawhub.ai/levi840714/skills/perfly-skill
+https://smithery.ai/skills/perfly/perfly-skill
 ```
 
 Version source:
@@ -46,8 +47,7 @@ skill/manifest.json
 Preview updates from the Perfly monorepo with:
 
 ```bash
-make publish-clawhub-skill
-make release-clawhub-skill-dry-run
+make release-skills-dry-run
 ```
 
 Release flow:
@@ -56,7 +56,7 @@ Release flow:
 # 1. Bump skill/manifest.json version.
 # 2. Commit the monorepo changes.
 # 3. Publish perfly-agent/ and tag the public repo.
-make release-clawhub-skill
+make release-skills
 ```
 
-The release script pushes `perfly-agent/` to `perfly-dev/perfly-agent`, then creates `perfly-skill-v<version>` on that public repo. The ClawHub GitHub Action publishes only from those public repo tags and fails if the tag version does not match `skill/manifest.json`.
+The release script pushes `perfly-agent/` to `perfly-dev/perfly-agent`, then creates `perfly-skill-v<version>` on that public repo. Registry-specific GitHub Actions publish only from those public repo tags and fail if the tag version does not match `skill/manifest.json`.

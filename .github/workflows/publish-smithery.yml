@@ -1,0 +1,151 @@
+name: Publish Smithery
+
+on:
+  pull_request:
+    paths:
+      - "mcp/**"
+      - "skill/**"
+      - ".github/workflows/publish-smithery.yml"
+  push:
+    tags:
+      - "perfly-mcp-v*"
+      - "perfly-skill-v*"
+  workflow_dispatch:
+
+jobs:
+  publish-mcp:
+    if: ${{ github.event_name != 'push' || startsWith(github.ref_name, 'perfly-mcp-v') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Resolve MCP version
+        id: version
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          version="$(node -e '
+            const fs = require("node:fs");
+            const manifest = JSON.parse(fs.readFileSync("mcp/manifest.json", "utf8"));
+            if (!manifest.version || typeof manifest.version !== "string") {
+              console.error("mcp/manifest.json must contain a string version.");
+              process.exit(1);
+            }
+            process.stdout.write(manifest.version);
+          ')"
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid semver in mcp/manifest.json: $version"
+            exit 1
+          fi
+
+          if [[ "$REF_TYPE" == "tag" ]]; then
+            tag_version="${REF_NAME#perfly-mcp-v}"
+            if [[ "$tag_version" == "$REF_NAME" ]]; then
+              echo "::error::MCP publish tags must use perfly-mcp-v<version>."
+              exit 1
+            fi
+            if [[ "$tag_version" != "$version" ]]; then
+              echo "::error::Tag version $tag_version does not match mcp/manifest.json version $version."
+              exit 1
+            fi
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install Smithery CLI
+        run: npm install -g smithery@latest
+
+      - name: Publish MCP server
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SMITHERY_API_KEY: ${{ secrets.SMITHERY_API_KEY }}
+        run: |
+          if [[ "$EVENT_NAME" != "push" ]]; then
+            echo "Dry run: would publish https://api.perfly.dev/mcp to perfly/perfly-mcp"
+            smithery --help >/dev/null
+            exit 0
+          fi
+
+          if [[ -z "$SMITHERY_API_KEY" ]]; then
+            echo "::error::Set the SMITHERY_API_KEY repository secret before tag publishing."
+            exit 1
+          fi
+
+          smithery mcp publish "https://api.perfly.dev/mcp" -n perfly/perfly-mcp
+
+  publish-skill:
+    if: ${{ github.event_name != 'push' || startsWith(github.ref_name, 'perfly-skill-v') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Resolve skill version
+        id: version
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          version="$(node -e '
+            const fs = require("node:fs");
+            const manifest = JSON.parse(fs.readFileSync("skill/manifest.json", "utf8"));
+            if (!manifest.version || typeof manifest.version !== "string") {
+              console.error("skill/manifest.json must contain a string version.");
+              process.exit(1);
+            }
+            process.stdout.write(manifest.version);
+          ')"
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid semver in skill/manifest.json: $version"
+            exit 1
+          fi
+
+          if [[ "$REF_TYPE" == "tag" ]]; then
+            tag_version="${REF_NAME#perfly-skill-v}"
+            if [[ "$tag_version" == "$REF_NAME" ]]; then
+              echo "::error::Skill publish tags must use perfly-skill-v<version>."
+              exit 1
+            fi
+            if [[ "$tag_version" != "$version" ]]; then
+              echo "::error::Tag version $tag_version does not match skill/manifest.json version $version."
+              exit 1
+            fi
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Publish Smithery skill
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SMITHERY_API_KEY: ${{ secrets.SMITHERY_API_KEY }}
+        run: |
+          git_url="https://github.com/perfly-dev/perfly-agent/tree/main/skill"
+
+          if [[ "$EVENT_NAME" != "push" ]]; then
+            echo "Dry run: would update Smithery skill perfly/perfly-skill from $git_url"
+            exit 0
+          fi
+
+          if [[ -z "$SMITHERY_API_KEY" ]]; then
+            echo "::error::Set the SMITHERY_API_KEY repository secret before tag publishing."
+            exit 1
+          fi
+
+          curl --fail-with-body --show-error --silent \
+            --request PUT \
+            --url "https://api.smithery.ai/skills/perfly/perfly-skill" \
+            --header "Authorization: Bearer $SMITHERY_API_KEY" \
+            --header "content-type: application/json" \
+            --data "{\"gitUrl\":\"$git_url\"}"
