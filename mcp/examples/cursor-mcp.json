@@ -1,10 +1,7 @@
 {
   "mcpServers": {
     "perfly": {
-      "url": "https://api.perfly.dev/mcp",
-      "headers": {
-        "Authorization": "Bearer $PERFLY_INGESTION_TOKEN"
-      }
+      "url": "https://api.perfly.dev/mcp"
     }
   }
 }

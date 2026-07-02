@@ -12,9 +12,14 @@
     "cursor"
   ],
   "auth": {
-    "type": "bearer",
-    "header": "Authorization",
-    "tokenPrefix": "pfl_ing_"
+    "type": "oauth",
+    "fallback": {
+      "type": "bearer",
+      "header": "Authorization",
+      "tokenPrefix": "pfl_ing_"
+    },
+    "protectedResourceMetadata": "https://api.perfly.dev/.well-known/oauth-protected-resource/mcp",
+    "authorizationServerMetadata": "https://api.perfly.dev/.well-known/oauth-authorization-server"
   },
   "tools": [
     "perfly_check_connection",

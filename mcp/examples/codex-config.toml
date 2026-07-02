@@ -1,3 +1,2 @@
 [mcp_servers.perfly]
 url = "https://api.perfly.dev/mcp"
-bearer_token_env_var = "PERFLY_INGESTION_TOKEN"

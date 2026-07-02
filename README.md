@@ -1,69 +1,95 @@
 # Perfly Agent
 
-Perfly Agent contains the public distribution artifacts for connecting coding agents to Perfly Agent Sync.
+Perfly Agent connects coding assistants to [Perfly](https://perfly.dev), so approved work summaries can be written into your Perfly Today timeline without giving the agent access to your source code, issue bodies, pull requests, documents, or company SaaS accounts.
 
-This directory is intentionally independent from Perfly's internal product docs and application source. It is safe to split or mirror into separate Git repositories for MCP registries and skill hubs.
+This repository contains the public agent-facing packages for Perfly Agent Sync:
 
-## Packages
-
-| Path | Purpose |
+| Package | Purpose |
 |---|---|
-| `mcp/` | MCP registry package metadata, setup docs, and client examples for the hosted Perfly Agent Sync MCP endpoint. |
-| `skill/` | English canonical agent skill instructions for Codex, Claude Code, and compatible coding agents. |
+| [`mcp/`](mcp/) | Hosted MCP server metadata, setup instructions, and client examples. |
+| [`skill/`](skill/) | English canonical Skill instructions for Codex, Claude Code, and compatible coding agents. |
 
-## Publishing
+## What It Does
 
-The public repository is:
+Perfly Agent Sync gives your coding agent a narrow write-only workflow:
 
-```text
-https://github.com/perfly-dev/perfly-agent
-```
+1. Preview concise work summary items.
+2. Ask for confirmation unless unattended submission was explicitly enabled.
+3. Write selected summaries into Perfly as reviewable Today entries.
 
-From the Perfly monorepo root, publish this directory into that repository:
+The MCP server exposes these tools:
 
-```bash
-pnpm publish:perfly-agent
-```
+| Tool | Purpose |
+|---|---|
+| `perfly_check_connection` | Verify the connection and return non-secret token/client metadata. |
+| `perfly_get_ingestion_policy` | Return Perfly privacy and formatting rules. |
+| `perfly_preview_work_items` | Validate items and preview what would be submitted without writing records. |
+| `perfly_add_work_items` | Write selected summaries into Perfly as reviewable Today raw entries. |
 
-Run a local split without pushing:
+## Recommended Setup
 
-```bash
-pnpm publish:perfly-agent -- --dry-run
-```
-
-The publish script requires a clean working tree because `git subtree split` publishes committed history only.
-
-By default it uses the SSH remote:
+Use the hosted MCP endpoint:
 
 ```text
-git@github.com:perfly-dev/perfly-agent.git
+https://api.perfly.dev/mcp
 ```
 
-Override it when needed:
+Perfly supports MCP OAuth for clients that discover authorization from the server. For clients or environments that cannot complete a browser OAuth flow, Perfly also supports write-only bearer tokens created in the Perfly app.
 
-```bash
-PERFLY_AGENT_REMOTE_URL=https://github.com/perfly-dev/perfly-agent.git pnpm publish:perfly-agent
-```
+Start with the MCP package:
 
-If GitHub reports permission denied for an unexpected account, check the active SSH identity:
+- [MCP setup](mcp/)
+- [Claude Code example](mcp/examples/claude-code.md)
+- [Codex config example](mcp/examples/codex-config.toml)
+- [Cursor config example](mcp/examples/cursor-mcp.json)
 
-```bash
-ssh -T git@github.com
-```
+Then install or copy the Skill instructions:
 
-Git commit author (`git config user.email`) does not control push permissions. SSH remotes use the GitHub account attached to the SSH key selected by your local SSH agent/config. To publish with HTTPS instead of SSH, run:
-
-```bash
-PERFLY_AGENT_REMOTE_URL=https://github.com/perfly-dev/perfly-agent.git pnpm publish:perfly-agent
-```
-
-## Hub Entries
-
-Use one public repository with separate hub entrypoints:
-
-- MCP registries should point to `mcp/` or `mcp/manifest.json`.
-- Skill hubs should point to `skill/` or `skill/SKILL.md`.
+- [Perfly Agent Sync Skill](skill/SKILL.md)
 
 ## Privacy Boundary
 
-Perfly Agent Sync accepts summary metadata only. Do not send source code, diffs, logs, secrets, customer data, document bodies, issue bodies, pull request bodies, attachments, or terminal output.
+Perfly Agent Sync is designed for summary metadata only.
+
+Do not submit:
+
+- source code or diffs
+- secrets or credentials
+- customer data
+- issue bodies or pull request bodies
+- document bodies or attachments
+- full terminal output or logs
+
+Agents should submit short titles, optional notes, timestamps, source labels, and compact metadata references only.
+
+## Packages And Registries
+
+MCP registries should point to:
+
+```text
+mcp/
+```
+
+or:
+
+```text
+mcp/manifest.json
+```
+
+Skill hubs should point to:
+
+```text
+skill/
+```
+
+or:
+
+```text
+skill/SKILL.md
+```
+
+## Project Links
+
+- Perfly: [https://perfly.dev](https://perfly.dev)
+- App setup page: `https://app.perfly.dev/agent-setup`
+- MCP endpoint: `https://api.perfly.dev/mcp`
