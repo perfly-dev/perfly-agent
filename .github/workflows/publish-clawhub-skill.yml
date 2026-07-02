@@ -1,0 +1,96 @@
+name: Publish ClawHub Skill
+
+on:
+  pull_request:
+    paths:
+      - "skill/**"
+      - ".github/workflows/publish-clawhub-skill.yml"
+  push:
+    tags:
+      - "perfly-skill-v*"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Resolve skill version
+        id: version
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          version="$(node -e '
+            const fs = require("node:fs");
+            const manifest = JSON.parse(fs.readFileSync("skill/manifest.json", "utf8"));
+            if (!manifest.version || typeof manifest.version !== "string") {
+              console.error("skill/manifest.json must contain a string version.");
+              process.exit(1);
+            }
+            process.stdout.write(manifest.version);
+          ')"
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid semver in skill/manifest.json: $version"
+            exit 1
+          fi
+
+          if [[ "$REF_TYPE" == "tag" ]]; then
+            tag_version="${REF_NAME#perfly-skill-v}"
+            if [[ "$tag_version" == "$REF_NAME" ]]; then
+              echo "::error::Skill publish tags must use perfly-skill-v<version>."
+              exit 1
+            fi
+            if [[ "$tag_version" != "$version" ]]; then
+              echo "::error::Tag version $tag_version does not match skill/manifest.json version $version."
+              exit 1
+            fi
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install ClawHub CLI
+        run: npm install -g clawhub
+
+      - name: Login to ClawHub
+        if: ${{ github.event_name == 'push' }}
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          if [[ -z "$CLAWHUB_TOKEN" ]]; then
+            echo "::error::Set the CLAWHUB_TOKEN repository secret before tag publishing."
+            exit 1
+          fi
+          clawhub login --token "$CLAWHUB_TOKEN"
+
+      - name: Publish skill
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          args=(
+            skill
+            publish
+            skill
+            --owner
+            levi840714
+            --slug
+            perfly-skill
+            --name
+            Perfly
+            --version
+            "$VERSION"
+          )
+
+          if [[ "$EVENT_NAME" != "push" ]]; then
+            args+=(--dry-run)
+          fi
+
+          clawhub "${args[@]}"

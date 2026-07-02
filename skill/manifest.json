@@ -2,7 +2,7 @@
   "name": "perfly-agent-sync",
   "displayName": "Perfly Agent Sync",
   "description": "Agent instructions for summarizing local coding work and submitting selected worklog items to Perfly through MCP.",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "homepage": "https://perfly.dev",
   "entrypoint": "SKILL.md",
   "language": "en",

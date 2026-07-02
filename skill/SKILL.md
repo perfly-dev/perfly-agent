@@ -9,7 +9,7 @@ Use this skill when the user asks you to send today's work to Perfly, summarize 
 
 ## Requirements
 
-Perfly Agent Sync requires the Perfly MCP server to be configured with a write-only ingestion token.
+Perfly Agent Sync requires the Perfly MCP server to be configured in the user's MCP client.
 
 Production MCP endpoint:
 
@@ -17,7 +17,11 @@ Production MCP endpoint:
 https://api.perfly.dev/mcp
 ```
 
-The MCP client must send:
+Prefer MCP OAuth discovery when the client supports browser authorization. The user should only need to add the hosted MCP endpoint.
+
+Use a write-only bearer ingestion token only as a fallback for environments that cannot complete browser OAuth, such as headless CLI, SSH, devcontainer, CI, or remote sandbox workflows.
+
+If token fallback is required, the MCP client sends:
 
 ```text
 Authorization: Bearer $PERFLY_INGESTION_TOKEN
@@ -58,4 +62,4 @@ Never submit:
 
 If the user asks to include sensitive material, summarize at a higher level and explain that Perfly Agent Sync accepts summary metadata only.
 
-If MCP is unavailable, explain how to set up Perfly Agent Sync. Do not ask the user to paste an ingestion token directly into chat.
+If MCP is unavailable, explain how to set up Perfly Agent Sync with the hosted MCP endpoint first. Do not ask the user to paste an ingestion token directly into chat; if OAuth cannot work in the user's environment, direct them to create a fallback token in the Perfly app setup page.

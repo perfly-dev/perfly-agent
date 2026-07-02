@@ -88,6 +88,12 @@ or:
 skill/SKILL.md
 ```
 
+The current ClawHub listing is:
+
+```text
+https://clawhub.ai/levi840714/skills/perfly-skill
+```
+
 ## Project Links
 
 - Perfly: [https://perfly.dev](https://perfly.dev)
